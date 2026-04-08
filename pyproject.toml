@@ -9,4 +9,5 @@ dependencies = [
     "dmr>=0.1.0",
     "msgspec>=0.20.0",
     "psycopg[binary]>=3.3.3",
+    "ruff>=0.15.9",
 ]
