@@ -13,3 +13,10 @@ dependencies = [
     "punq>=0.7.0",
     "ruff>=0.15.9",
 ]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "myproject.settings"
+
