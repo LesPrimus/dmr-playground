@@ -11,9 +11,10 @@ from .services import UserService
 class UserController(Controller[PydanticSerializer]):
     def get(self) -> list[UserModel]:
         return [
-            UserModel(username=u.username, email=u.email)
+            UserModel(id=u.pk, username=u.username, email=u.email)
             for u in UserService.get_users()
         ]
 
     def post(self, parsed_body: Body[UserCreateModel]) -> UserModel:
-        return UserModel(username=parsed_body.username, email=parsed_body.email)
+        user = UserService.create_user(parsed_body)
+        return UserModel(id=user.pk, username=user.username, email=user.email)
