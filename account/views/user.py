@@ -6,6 +6,7 @@ from dmr import Controller, Body, ResponseSpec
 from dmr.endpoint import Endpoint, modify
 from dmr.errors import ErrorType
 from dmr.plugins.pydantic import PydanticSerializer
+from dmr.security.jwt import JWTSyncAuth
 
 from account.di import UserContainerInjector
 from account.serializers import UserCreateModel, UserModel
@@ -14,6 +15,7 @@ from account.services import (
     UserListService,
     UserCreateService,
 )
+from base.request import AuthenticatedHttpRequest
 
 
 @final
@@ -21,7 +23,11 @@ class UserController(
     UserContainerInjector,  # DI injects the services
     Controller[PydanticSerializer],
 ):
+    request = AuthenticatedHttpRequest
+    auth = (JWTSyncAuth(),)
+
     def get(self) -> list[UserModel]:
+        print(self.request.user)
         return self.resolve(UserListService)()
 
     @modify(
