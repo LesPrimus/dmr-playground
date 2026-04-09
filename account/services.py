@@ -1,7 +1,11 @@
-from django.db import IntegrityError
+from dataclasses import dataclass, field
 
+from django.db import IntegrityError
+from django.db.models import QuerySet
+
+from account.mappers import UserMapper
 from account.models import User
-from account.serializers import UserCreateModel
+from account.serializers import UserCreateModel, UserModel
 
 
 class UserUniqueConstraintError(Exception):
@@ -25,3 +29,11 @@ class UserService:
             # We don't raise `IntegrityError` here, because we prefer domain
             # exceptions over Django ones. It is much easier to manage.
             raise UserUniqueConstraintError from None
+
+
+@dataclass
+class UserListService:
+    _mapper: "UserMapper" = field(default_factory=UserMapper)
+
+    def __call__(self, users: QuerySet[User]) -> list[UserModel]:
+        return self._mapper.multiple(users)
