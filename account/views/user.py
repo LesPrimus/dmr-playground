@@ -7,9 +7,9 @@ from dmr.endpoint import Endpoint, modify
 from dmr.errors import ErrorType
 from dmr.plugins.pydantic import PydanticSerializer
 
-from .di import UserContainerInjector
-from .serializers import UserCreateModel, UserModel
-from .services import (
+from account.di import UserContainerInjector
+from account.serializers import UserCreateModel, UserModel
+from account.services import (
     UserUniqueConstraintError,
     UserListService,
     UserCreateService,
