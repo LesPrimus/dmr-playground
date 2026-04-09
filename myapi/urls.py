@@ -14,10 +14,22 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import include, path
+from dmr.routing import Router
+
+import api.urls
+
+from dmr.openapi import build_schema
+from dmr.openapi.views.swagger import SwaggerView
+
+
+meta_router = Router("", [*api.urls.urlpatterns])
+combined_schema = build_schema(meta_router)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('api.urls')),
+    path("admin/", admin.site.urls),
+    path("", include("api.urls")),
+    path("docs/", SwaggerView.as_view(schema=combined_schema), name="swagger-ui"),
 ]

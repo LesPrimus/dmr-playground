@@ -18,8 +18,8 @@ class HeaderModel(pydantic.BaseModel):
 
 
 class UserController(Controller[PydanticSerializer]):
-    def get(self, parsed_headers: Headers[HeaderModel]) -> UserModel:
-        return UserModel(email="foo@email.com", name=parsed_headers.consumer)
+    def get(self) -> UserModel:
+        return UserModel(email="foo@email.com", name="foo")
 
     def post(self, parsed_body: Body[UserCreateModel]) -> UserModel:
         return UserModel(email=parsed_body.email, name=parsed_body.name)
