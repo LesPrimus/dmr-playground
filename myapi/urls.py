@@ -19,17 +19,17 @@ from django.contrib import admin
 from django.urls import include, path
 from dmr.routing import Router
 
-import api.urls
 
 from dmr.openapi import build_schema
 from dmr.openapi.views.swagger import SwaggerView
 
+import account.urls
 
-meta_router = Router("", [*api.urls.urlpatterns])
+meta_router = Router("", [*account.urls.urlpatterns])
 combined_schema = build_schema(meta_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("api.urls")),
+    path("", include("account.urls", namespace="account")),
     path("docs/", SwaggerView.as_view(schema=combined_schema), name="swagger-ui"),
 ]
