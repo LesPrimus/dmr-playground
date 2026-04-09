@@ -1,20 +1,15 @@
-from dataclasses import dataclass, field
-
 import punq
 
 from account.mappers import UserMapper
-from account.serializers import UserCreateModel
-from account.services import UserListService
+from account.services import UserListService, UserDetailService, UserCreateService
+
+_container = punq.Container()
+_container.register(UserListService)
+_container.register(UserCreateService)
+_container.register(UserDetailService)
+_container.register(UserMapper)
 
 
-@dataclass(slots=True)
 class UserContainerInjector:
-    container: punq.Container = field(default_factory=punq.Container)
-
-    def __post_init__(self):
-        self.container.register(UserListService)
-        self.container.register(UserCreateModel)
-        self.container.register(UserMapper)
-
     def resolve(self, thing):
-        return self.container.resolve(thing)
+        return _container.resolve(thing)

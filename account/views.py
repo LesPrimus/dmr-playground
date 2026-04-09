@@ -1,4 +1,3 @@
-from collections import UserList
 from http import HTTPStatus
 from typing import final, override
 
@@ -10,7 +9,11 @@ from dmr.plugins.pydantic import PydanticSerializer
 
 from .di import UserContainerInjector
 from .serializers import UserCreateModel, UserModel
-from .services import UserService, UserUniqueConstraintError, UserListService
+from .services import (
+    UserUniqueConstraintError,
+    UserListService,
+    UserCreateService,
+)
 
 
 @final
@@ -19,7 +22,7 @@ class UserController(
     Controller[PydanticSerializer],
 ):
     def get(self) -> list[UserModel]:
-        return self.resolve(UserListService)(UserService.get_users())
+        return self.resolve(UserListService)()
 
     @modify(
         extra_responses=[
@@ -27,8 +30,7 @@ class UserController(
         ]
     )
     def post(self, parsed_body: Body[UserCreateModel]) -> UserModel:
-        user = UserService.create_user(parsed_body)
-        return UserModel(id=user.pk, username=user.username, email=user.email)
+        return self.resolve(UserCreateService)(parsed_body)
 
     # --- Controller Error handling --- #
 

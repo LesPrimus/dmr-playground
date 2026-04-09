@@ -35,5 +35,22 @@ class UserService:
 class UserListService:
     _mapper: "UserMapper" = field(default_factory=UserMapper)
 
-    def __call__(self, users: QuerySet[User]) -> list[UserModel]:
+    def __call__(self) -> list[UserModel]:
+        users: QuerySet[User] = UserService.get_users()
         return self._mapper.multiple(users)
+
+
+@dataclass
+class UserDetailService:
+    _mapper: "UserMapper" = field(default_factory=UserMapper)
+
+    def __call__(self, user: User) -> UserModel:
+        return self._mapper.single(user)
+
+
+@dataclass
+class UserCreateService:
+    _mapper: "UserMapper" = field(default_factory=UserMapper)
+
+    def __call__(self, user_schema: UserCreateModel) -> UserModel:
+        return self._mapper.single(UserService.create_user(user_schema))
