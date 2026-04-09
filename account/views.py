@@ -39,7 +39,7 @@ class UserController(Controller[PydanticSerializer]):
             case UserUniqueConstraintError():
                 return self.to_error(
                     self.format_error(
-                        "User `email` and `customer_service_uid` must be unique",
+                        "User `email` and `username` must be unique",
                         error_type=ErrorType.value_error,
                     ),
                     status_code=HTTPStatus.CONFLICT,

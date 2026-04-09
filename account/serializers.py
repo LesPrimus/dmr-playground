@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, final
 
 import pydantic
 
@@ -10,9 +10,11 @@ class BaseUserModel(pydantic.BaseModel):
     email: str
 
 
+@final
 class UserModel(BaseUserModel):
     id: UserId
 
 
+@final
 class UserCreateModel(BaseUserModel):
     password: str
