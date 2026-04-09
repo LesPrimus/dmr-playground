@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from django.db import IntegrityError
 from django.db.models import QuerySet
@@ -33,24 +33,24 @@ class UserService:
 
 @dataclass
 class UserListService:
-    _mapper: "UserMapper" = field(default_factory=UserMapper)
+    mapper: UserMapper
 
     def __call__(self) -> list[UserModel]:
         users: QuerySet[User] = UserService.get_users()
-        return self._mapper.multiple(users)
+        return self.mapper.multiple(users)
 
 
 @dataclass
 class UserDetailService:
-    _mapper: "UserMapper" = field(default_factory=UserMapper)
+    mapper: UserMapper
 
     def __call__(self, user: User) -> UserModel:
-        return self._mapper.single(user)
+        return self.mapper.single(user)
 
 
 @dataclass
 class UserCreateService:
-    _mapper: "UserMapper" = field(default_factory=UserMapper)
+    mapper: UserMapper
 
     def __call__(self, user_schema: UserCreateModel) -> UserModel:
-        return self._mapper.single(UserService.create_user(user_schema))
+        return self.mapper.single(UserService.create_user(user_schema))
