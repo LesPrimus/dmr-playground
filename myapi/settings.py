@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "dmr",
+    "account",
 ]
+
+AUTH_USER_MODEL = "account.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
