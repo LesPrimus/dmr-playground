@@ -3,7 +3,7 @@ from django.urls import include
 # Our `path` is an optimized drop-in replacement of `django.urls.path`:
 from dmr.routing import Router, path
 
-from account.views import UserController
+from account import views
 
 app_name = "account"
 
@@ -11,9 +11,10 @@ app_name = "account"
 router = Router(
     "account/",
     [
+        path("auth/", views.ObtainAccessAndRefreshJwtController.as_view(), name="auth"),
         path(
             "user/",
-            UserController.as_view(),
+            views.UserController.as_view(),
             name="users",
         ),
     ],

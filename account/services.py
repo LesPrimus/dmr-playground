@@ -20,7 +20,7 @@ class UserService:
     @classmethod
     def create_user(cls, user_schema: UserCreateModel) -> User:
         try:
-            return User.objects.create(
+            return User.objects.create_user(
                 email=user_schema.email,
                 username=user_schema.username,
                 password=user_schema.password,
