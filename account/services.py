@@ -5,6 +5,7 @@ from django.db.models import QuerySet
 
 from account.mappers import UserMapper
 from account.models import User
+from account.permissions import IsAdmin, BasePermission
 from account.serializers import UserCreateModel, UserModel
 
 
@@ -34,10 +35,16 @@ class UserService:
 @dataclass
 class UserListService:
     mapper: UserMapper
+    permission: BasePermission
 
-    def __call__(self) -> list[UserModel]:
+    def __call__(self, user: User) -> list[UserModel]:
+        self.check_permission(user)
         users: QuerySet[User] = UserService.get_users()
         return self.mapper.multiple(users)
+
+    def check_permission(self, user: User):
+        if not self.permission.has_permission():
+            raise PermissionError("You are not admin")
 
 
 @dataclass

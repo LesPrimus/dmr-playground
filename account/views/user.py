@@ -9,6 +9,7 @@ from dmr.plugins.pydantic import PydanticSerializer
 from dmr.security.jwt import JWTSyncAuth
 
 from account.di import UserContainerInjector
+from account.permissions import IsAdmin
 from account.serializers import UserCreateModel, UserModel
 from account.services import (
     UserUniqueConstraintError,
@@ -26,9 +27,15 @@ class UserController(
     request = AuthenticatedHttpRequest
     auth = (JWTSyncAuth(),)
 
+    @modify(
+        extra_responses=[
+            ResponseSpec(Controller.error_model, status_code=HTTPStatus.FORBIDDEN),
+        ]
+    )
     def get(self) -> list[UserModel]:
-        print(self.request.user)
-        return self.resolve(UserListService)()
+        return self.resolve(
+            UserListService, permission=IsAdmin(user=self.request.user)
+        )(user=self.request.user)
 
     @modify(
         extra_responses=[
@@ -55,6 +62,14 @@ class UserController(
                         error_type=ErrorType.value_error,
                     ),
                     status_code=HTTPStatus.CONFLICT,
+                )
+            case PermissionError():
+                return self.to_error(
+                    self.format_error(
+                        "You don't have permission to perform this action",
+                        error_type=ErrorType.value_error,
+                    ),
+                    status_code=HTTPStatus.FORBIDDEN,
                 )
             case _:
                 return super().handle_error(endpoint, controller, exc)
