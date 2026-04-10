@@ -250,6 +250,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "punq" },
     { name = "ruff" },
+    { name = "ty" },
 ]
 
 [package.dev-dependencies]
@@ -268,6 +269,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
     { name = "punq", specifier = ">=0.7.0" },
     { name = "ruff", specifier = ">=0.15.9" },
+    { name = "ty", specifier = ">=0.0.29" },
 ]
 
 [package.metadata.requires-dev]

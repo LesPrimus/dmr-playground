@@ -1,7 +1,5 @@
-from django.contrib.auth import get_user_model
 from django.http import HttpRequest
-
-User = get_user_model()
+from account.models import User
 
 
 class AuthenticatedHttpRequest(HttpRequest):

@@ -12,6 +12,7 @@ dependencies = [
     "psycopg[binary]>=3.3.3",
     "punq>=0.7.0",
     "ruff>=0.15.9",
+    "ty>=0.0.29",
 ]
 
 [tool.mypy]
