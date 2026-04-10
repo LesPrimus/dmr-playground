@@ -8,12 +8,10 @@ User = get_user_model()
 
 class BasePermission(ABC):
     @abstractmethod
-    def has_permission(self) -> bool: ...
+    def has_permission(self, user: User) -> bool: ...
 
 
 @dataclass
 class IsAdmin(BasePermission):
-    user: User
-
-    def has_permission(self) -> bool:
-        return self.user.is_staff
+    def has_permission(self, user: User) -> bool:
+        return user.is_staff

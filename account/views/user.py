@@ -33,9 +33,9 @@ class UserController(
         ]
     )
     def get(self) -> list[UserModel]:
-        return self.resolve(
-            UserListService, permission=IsAdmin(user=self.request.user)
-        )(user=self.request.user)
+        return self.resolve(UserListService, permission=IsAdmin())(
+            user=self.request.user
+        )
 
     @modify(
         extra_responses=[

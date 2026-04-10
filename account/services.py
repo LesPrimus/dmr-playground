@@ -35,7 +35,7 @@ class UserService:
 @dataclass
 class UserListService:
     mapper: UserMapper
-    permission: BasePermission
+    permission: IsAdmin
 
     def __call__(self, user: User) -> list[UserModel]:
         self.check_permission(user)
@@ -43,7 +43,7 @@ class UserListService:
         return self.mapper.multiple(users)
 
     def check_permission(self, user: User):
-        if not self.permission.has_permission():
+        if not self.permission.has_permission(user):
             raise PermissionError("You are not admin")
 
 
