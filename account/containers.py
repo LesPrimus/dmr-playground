@@ -1,4 +1,3 @@
-from account.mappers import UserMapper
 from account.permissions import IsAdmin
 from account import services
 
@@ -11,7 +10,6 @@ class Services(containers.DeclarativeContainer):
 
     user = providers.Factory(
         services.UserService,
-        mapper=providers.Object(UserMapper()),
         permission=providers.Object(IsAdmin()),
     )
 

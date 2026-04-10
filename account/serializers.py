@@ -6,6 +6,8 @@ type UserId = Annotated[int, pydantic.Field(gt=0)]
 
 
 class BaseUserModel(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(from_attributes=True)
+
     username: str
     email: str
 

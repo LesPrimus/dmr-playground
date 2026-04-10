@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from django.db import IntegrityError
 from django.db.models import QuerySet
 
-from account.mappers import UserMapper
 from account.models import User
 from account.permissions import BasePermission
 from account.serializers import UserCreateModel, UserModel
@@ -15,7 +14,6 @@ class UserUniqueConstraintError(Exception):
 
 @dataclass
 class UserService:
-    mapper: UserMapper
     permission: BasePermission
 
     @staticmethod
@@ -33,12 +31,12 @@ class UserService:
             # We don't raise `IntegrityError` here, because we prefer domain
             # exceptions over Django ones. It is much easier to manage.
             raise UserUniqueConstraintError from None
-        return self.mapper.single(user)
+        return UserModel.model_validate(user)
 
     def list_users(self, user):
         self.check_permission(user)
         users: QuerySet[User] = self.get_users()
-        return self.mapper.multiple(users)
+        return [UserModel.model_validate(u) for u in users]
 
     def check_permission(self, user: User):
         if not self.permission.has_permission(user):
