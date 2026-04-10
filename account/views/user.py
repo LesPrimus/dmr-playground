@@ -7,21 +7,20 @@ from dmr.endpoint import Endpoint, modify
 from dmr.errors import ErrorType
 from dmr.plugins.pydantic import PydanticSerializer
 from dmr.security.jwt import JWTSyncAuth
+from dependency_injector.wiring import Provide, inject
 
-from account.di import UserContainerInjector
-from account.permissions import IsAdmin
+from account.containers import Services
 from account.serializers import UserCreateModel, UserModel
+from account.services import UserService
+
 from account.services import (
     UserUniqueConstraintError,
-    UserListService,
-    UserCreateService,
 )
 from base.request import AuthenticatedHttpRequest
 
 
 @final
 class UserController(
-    UserContainerInjector,  # DI injects the services
     Controller[PydanticSerializer],
 ):
     request = AuthenticatedHttpRequest
@@ -32,18 +31,24 @@ class UserController(
             ResponseSpec(Controller.error_model, status_code=HTTPStatus.FORBIDDEN),
         ]
     )
-    def get(self) -> list[UserModel]:
-        return self.resolve(UserListService, permission=IsAdmin())(
-            user=self.request.user
-        )
+    @inject
+    def get(
+        self, user_service: UserService = Provide[Services.user]
+    ) -> list[UserModel]:
+        return user_service.list_users(user=self.request.user)
 
     @modify(
         extra_responses=[
             ResponseSpec(Controller.error_model, status_code=HTTPStatus.CONFLICT)
         ]
     )
-    def post(self, parsed_body: Body[UserCreateModel]) -> UserModel:
-        return self.resolve(UserCreateService)(parsed_body)
+    @inject
+    def post(
+        self,
+        parsed_body: Body[UserCreateModel],
+        user_service: UserService = Provide[Services.user],
+    ) -> UserModel:
+        return user_service.create_user(parsed_body)
 
     # --- Controller Error handling --- #
 

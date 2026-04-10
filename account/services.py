@@ -13,15 +13,18 @@ class UserUniqueConstraintError(Exception):
     """Fields ``email`` and ``username`` must be unique."""
 
 
+@dataclass
 class UserService:
-    @classmethod
-    def get_users(cls):
+    mapper: UserMapper
+    permission: BasePermission
+
+    @staticmethod
+    def get_users():
         return User.objects.all()
 
-    @classmethod
-    def create_user(cls, user_schema: UserCreateModel) -> User:
+    def create_user(self, user_schema: UserCreateModel) -> UserModel:
         try:
-            return User.objects.create_user(
+            user = User.objects.create_user(
                 email=user_schema.email,
                 username=user_schema.username,
                 password=user_schema.password,
@@ -30,34 +33,13 @@ class UserService:
             # We don't raise `IntegrityError` here, because we prefer domain
             # exceptions over Django ones. It is much easier to manage.
             raise UserUniqueConstraintError from None
+        return self.mapper.single(user)
 
-
-@dataclass
-class UserListService:
-    mapper: UserMapper
-    permission: BasePermission
-
-    def __call__(self, user: User) -> list[UserModel]:
+    def list_users(self, user):
         self.check_permission(user)
-        users: QuerySet[User] = UserService.get_users()
+        users: QuerySet[User] = self.get_users()
         return self.mapper.multiple(users)
 
     def check_permission(self, user: User):
         if not self.permission.has_permission(user):
             raise PermissionError("You are not admin")
-
-
-@dataclass
-class UserDetailService:
-    mapper: UserMapper
-
-    def __call__(self, user: User) -> UserModel:
-        return self.mapper.single(user)
-
-
-@dataclass
-class UserCreateService:
-    mapper: UserMapper
-
-    def __call__(self, user_schema: UserCreateModel) -> UserModel:
-        return self.mapper.single(UserService.create_user(user_schema))
