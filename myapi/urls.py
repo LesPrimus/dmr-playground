@@ -17,7 +17,6 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from dmr.routing import Router
 
 
 from dmr.openapi import build_schema
@@ -25,8 +24,7 @@ from dmr.openapi.views.swagger import SwaggerView
 
 import account.urls
 
-meta_router = Router("", [*account.urls.urlpatterns])
-combined_schema = build_schema(meta_router)
+combined_schema = build_schema(account.urls.router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

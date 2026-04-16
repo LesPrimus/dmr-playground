@@ -1,15 +1,10 @@
 import datetime as dt
-from http import HTTPStatus
-
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
+from django.views import View
 
 from authlib.integrations.django_client import OAuthError
 from dependency_injector.wiring import Provide, inject
-from dmr import Controller, ResponseSpec
-from dmr.endpoint import validate
-from dmr.plugins.pydantic import PydanticSerializer
-
 from account.containers import Services
 from account.models import User
 from account.oauth import oauth
@@ -30,8 +25,7 @@ Before testing, you need a Google OAuth app. Go to https://console.cloud.google.
 """
 
 
-class GoogleLoginView(Controller[PydanticSerializer]):
-    @validate(ResponseSpec(None, status_code=HTTPStatus.FOUND))
+class GoogleLoginView(View):
     @inject
     def get(
         self, request, oauth_service: OauthService = Provide[Services.oauth]
@@ -41,11 +35,7 @@ class GoogleLoginView(Controller[PydanticSerializer]):
         return oauth.google.authorize_redirect(request, redirect_uri, state=state)
 
 
-class GoogleCallbackView(Controller[PydanticSerializer]):
-    @validate(
-        ResponseSpec(None, status_code=HTTPStatus.OK),
-        ResponseSpec(None, status_code=HTTPStatus.BAD_REQUEST),
-    )
+class GoogleCallbackView(View):
     @inject
     def get(
         self, request, oauth_service: OauthService = Provide[Services.oauth]
