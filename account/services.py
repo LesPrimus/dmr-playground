@@ -1,11 +1,9 @@
-import base64
-import json
-import secrets
 import uuid
 from dataclasses import dataclass
 import datetime as dt
 
 from django.conf import settings
+from django.core import signing
 from django.db import IntegrityError
 from django.db.models import QuerySet
 from dmr.security.jwt import JWToken
@@ -64,9 +62,8 @@ class OauthService:
 
     @staticmethod
     def encode_state(data: dict) -> str:
-        payload = {**data, "nonce": secrets.token_urlsafe(16)}
-        return base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
+        return signing.dumps(data, salt="oauth_state")
 
     @staticmethod
-    def decode_state(raw: str) -> dict:
-        return json.loads(base64.urlsafe_b64decode(raw))
+    def decode_state(raw: str, max_age: int = 300) -> dict:
+        return signing.loads(raw, salt="oauth_state", max_age=max_age)
