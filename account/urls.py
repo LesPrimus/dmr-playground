@@ -12,6 +12,12 @@ router = Router(
     "account/",
     [
         path("auth/", views.ObtainAccessAndRefreshJwtController.as_view(), name="auth"),
+        path("auth/google/", views.GoogleLoginView.as_view(), name="google_login"),
+        path(
+            "auth/google/callback/",
+            views.GoogleCallbackView.as_view(),
+            name="google_callback",
+        ),
         path(
             "user/",
             views.UserController.as_view(),
