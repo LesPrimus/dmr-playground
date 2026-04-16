@@ -8,19 +8,16 @@ from dependency_injector.wiring import Provide, inject
 from account.containers import Services
 from account.models import User
 from account.oauth import oauth
-from account.services import OauthService
+from account.services import OauthService, StateExpiredError, InvalidStateError
 
 """
-Before testing, you need a Google OAuth app. Go to https://console.cloud.google.com/ → APIs & Services → Credentials → Create OAuth 2.0 Client ID:                                                                          
+Google OAuth app. Go to https://console.cloud.google.com/ → APIs & Services → Credentials → Create OAuth 2.0 Client ID:                                                                          
   - Application type: Web application                                                                                                                                                                                           
   - Authorized redirect URI: http://localhost:8000/account/auth/google/callback/
 
-  Then export the credentials:                                                                                                                                                                                                
-  export GOOGLE_CLIENT_ID=your-client-id                                                                                                                                                                                        
-  export GOOGLE_CLIENT_SECRET=your-client-secret                                                                                                                                                                              
-
-  One note: Authlib uses the Django session to store the state nonce between the two requests. The session middleware is already in your stack, so it works out of the box — but if you're testing with a plain HTTP client (not
-   a browser), you'll need to persist the session cookie across the two requests.                                                                                                                                               
+  Then in .env:                                                                                                                                                                                                
+    - GOOGLE_CLIENT_ID=your-client-id                                                                                                                                                                                        
+    - GOOGLE_CLIENT_SECRET=your-client-secret                                                                                                                                                                              
 
 """
 
@@ -41,9 +38,14 @@ class GoogleCallbackView(View):
         self, request, oauth_service: OauthService = Provide[Services.oauth]
     ) -> HttpResponse:
         raw_state = request.GET.get("state", "")
+
         try:
             state_data = oauth_service.decode_state(raw_state)
-        except Exception:
+        except StateExpiredError:
+            return JsonResponse(
+                {"error": "State expired, please try again"}, status=400
+            )
+        except InvalidStateError:
             return JsonResponse({"error": "Invalid state"}, status=400)
 
         try:

@@ -4,6 +4,7 @@ import datetime as dt
 
 from django.conf import settings
 from django.core import signing
+from django.core.signing import BadSignature, SignatureExpired
 from django.db import IntegrityError
 from django.db.models import QuerySet
 from dmr.security.jwt import JWToken
@@ -15,6 +16,14 @@ from account.serializers import UserCreateModel, UserModel
 
 class UserUniqueConstraintError(Exception):
     """Fields ``email`` and ``username`` must be unique."""
+
+
+class StateExpiredError(Exception):
+    """OAuth state has expired."""
+
+
+class InvalidStateError(Exception):
+    """OAuth state signature is invalid or tampered."""
 
 
 @dataclass
@@ -66,4 +75,9 @@ class OauthService:
 
     @staticmethod
     def decode_state(raw: str, max_age: int = 300) -> dict:
-        return signing.loads(raw, salt="oauth_state", max_age=max_age)
+        try:
+            return signing.loads(raw, salt="oauth_state", max_age=max_age)
+        except SignatureExpired:
+            raise StateExpiredError from None
+        except BadSignature:
+            raise InvalidStateError from None
